@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import {
   useParams,
   NavLink,
@@ -10,8 +10,12 @@ import {
 } from 'react-router-dom';
 import { fetchMovieById, IMAGE_URL } from '../../services/movies-api';
 import styles from './MovieDetailsPage.module.css';
-import MovieReview from '../MovieReview';
-import MovieCastView from '../MovieCastView';
+const MovieReview = lazy(() =>
+  import('../MovieReview')
+);
+const MovieCastView = lazy(() =>
+  import('../MovieCastView')
+);
 
 export default function MovieDetailsPage() {
   const history = useHistory();
@@ -47,7 +51,7 @@ export default function MovieDetailsPage() {
 
             <div>
               <h2>{movie.title}</h2>
-              <p>User Score: {`${movie.vote_average}`}</p>
+              <p>User Score: {`${movie.vote_average * 10}`}%</p>
               <h3>Overview</h3>
               <p>{`${movie.overview}`}</p>
               <h3>Genres</h3>
@@ -74,16 +78,17 @@ export default function MovieDetailsPage() {
           Reviews
         </NavLink>
       </nav>
+      <Suspense fallback={<div>Loading...</div>}>
+        <Switch>
+          <Route path={`${path}/cast`}>
+            <MovieCastView movieId={movieId} />
+          </Route>
 
-      <Switch>
-        <Route path={`${path}/cast`}>
-          <MovieCastView movieId={movieId} />
-        </Route>
-
-        <Route path={`${path}/reviews`}>
-          <MovieReview movieId={movieId} />
-        </Route>
-      </Switch>
+          <Route path={`${path}/reviews`}>
+            <MovieReview movieId={movieId} />
+          </Route>
+        </Switch>
+      </Suspense>
     </>
   );
 }
