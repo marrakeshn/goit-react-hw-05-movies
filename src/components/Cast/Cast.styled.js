@@ -30,12 +30,14 @@ export const ActorName = styled.p`
   margin: 0 0 8px;
   font-size: 16px;
   font-weight: 700;
+  color: #fff;
 `;
 
 export const Character = styled.p`
   padding: 0;
   margin: 0;
   font-size: 16px;
+  color: #fff;
 `;
 
 export const ActorImg = styled.img`

@@ -26,9 +26,9 @@ const Cast = () => {
 
     fetch();
 
-    // return () => {
-    //   abortController.abort();
-    // };
+    return () => {
+      abortController.abort();
+    };
   }, [id]);
 
   const getPathToImg = cartInfo => {

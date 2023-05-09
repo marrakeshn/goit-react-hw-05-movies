@@ -10,10 +10,10 @@ export const Container = styled.div`
 export const Header = styled.header`
   display: flex;
   align-items: center;
-
+  background-color: #212121;
   height: 72px;
   border-bottom: 1px solid gray;
-
+  padding: 40px 60px;
   > nav {
     display: flex;
     gap: 16px;
@@ -26,9 +26,10 @@ export const Link = styled(NavLink)`
   font-size: 32px;
   border-radius: 4px;
   text-decoration: none;
+  color: white;
 
   &.active {
-    color: white;
-    background-color: gray;
+    color: black;
+    background-color: #F5C518;
   }
 `;

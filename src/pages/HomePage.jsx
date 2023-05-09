@@ -17,9 +17,9 @@ const HomePage = () => {
 
     fetch();
 
-    // return () => {
-    //   abortController.abort();
-    // };
+    return () => {
+      abortController.abort();
+    };
   }, []);
 
   return (

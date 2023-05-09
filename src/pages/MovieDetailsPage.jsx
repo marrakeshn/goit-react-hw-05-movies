@@ -26,9 +26,9 @@ const MovieDetailsPage = () => {
 
     fetch();
 
-    // return () => {
-    //   abortController.abort();
-    // };
+    return () => {
+      abortController.abort();
+    };
   }, [id]);
 
   const score = data => {

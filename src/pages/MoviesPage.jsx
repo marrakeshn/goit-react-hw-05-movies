@@ -33,9 +33,9 @@ const MoviesPage = () => {
 
     fetch();
 
-    // return () => {
-    //   abortController.abort();
-    // };
+    return () => {
+      abortController.abort();
+    };
   }, [searchParams]);
 
   return (

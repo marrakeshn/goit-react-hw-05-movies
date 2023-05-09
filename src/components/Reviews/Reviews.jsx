@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { loadMovieReviews } from 'services/tmdb-api';
+import { Fragment } from 'react';
 
 const Reviews = () => {
   const [data, setData] = useState([]);
@@ -18,13 +19,13 @@ const Reviews = () => {
 
     fetch();
 
-    // return () => {
-    //   abortController.abort();
-    // };
+    return () => {
+      abortController.abort();
+    };
   }, [id]);
 
   return (
-    <>
+    <Fragment>
       {data.length > 0 ? (
         <ul>
           {data.map(elem => (
@@ -37,7 +38,7 @@ const Reviews = () => {
       ) : (
         "We don't have any reviews for this movie."
       )}
-    </>
+    </Fragment>
   );
 };
 
