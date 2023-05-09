@@ -1,3 +1,4 @@
+import Loader from 'components/Loader/Loader';
 import { useState, useEffect, lazy, Suspense } from 'react';
 import {
   useParams,
@@ -42,7 +43,11 @@ export default function MovieDetailsPage() {
           <div className={styles.movieContainer}>
             <div className={styles.movieImg}>
               <img
-                src={IMAGE_URL + movie.poster_path}
+                src={
+                  movie.poster_path
+                    ? IMAGE_URL + movie.poster_path
+                    : `https://bitsofco.de/content/images/2018/12/broken-1.png`
+                }
                 alt={movie.title}
                 widht=""
                 height=""
@@ -78,7 +83,7 @@ export default function MovieDetailsPage() {
           Reviews
         </NavLink>
       </nav>
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<Loader />}>
         <Switch>
           <Route path={`${path}/cast`}>
             <MovieCastView movieId={movieId} />
