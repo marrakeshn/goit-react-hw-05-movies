@@ -1,42 +1,29 @@
-import { Route, Switch } from 'react-router-dom';
-import Navigation from './components/Navigation/Navigation';
-import { lazy, Suspense } from 'react';
-import Container from './components/Container/Container';
-import Loader from 'components/Loader/Loader'
+import { lazy } from 'react';
+import { Routes, Route } from 'react-router-dom';
+import { SharedLayout } from './SharedLayout/SharedLayout';
 
-const HomePage = lazy(() =>
-  import('../pages/HomePage')
-);
-const MoviesPage = lazy(() =>
-  import('../pages/MoviesPage')
-);
-const MovieDetailsPage = lazy(() =>
-  import('../pages/MovieDetailsPage/MovieDetailsPage')
-);
-const NotFoundView = lazy(() =>
-  import('../pages/NotFoundView')
-);
+const Home = lazy(() => import('../pages/HomePage'));
+const Movies = lazy(() => import('../pages/MoviesPage'));
+const MovieDetails = lazy(() => import('../pages/MovieDetailsPage'));
+const NotFound = lazy(() => import('../pages/NotFound'));
+const Cast = lazy(() => import('./Cast/Cast'));
+const Reviews = lazy(() => import('./Reviews/Reviews'));
 
-export default function App() {
+export const App = () => {
   return (
-  <Container>
-      <Navigation />
-      <Suspense fallback={<Loader />}>
-        <Switch>
-          <Route exact path="/">
-            <HomePage />
+    <div>
+      <Routes>
+        <Route path="/" element={<SharedLayout />}>
+          <Route index element={<Home />} />
+
+          <Route path="movies" element={<Movies />} />
+          <Route path="movies/:id" element={<MovieDetails />}>
+            <Route path="cast" element={<Cast />} />
+            <Route path="reviews" element={<Reviews />} />
           </Route>
-          <Route exact path="/movies">
-            <MoviesPage />
-          </Route>
-          <Route path="/movies/:movieId">
-            <MovieDetailsPage />
-          </Route>
-          <Route>
-            <NotFoundView />
-          </Route>
-        </Switch>
-      </Suspense>
-    </Container>
+          <Route path="*" element={<NotFound />} />
+        </Route>
+      </Routes>
+    </div>
   );
-}
+};

@@ -1,38 +1,35 @@
-const KEY = 'f341564f871ad54342c422dd44d9e8b4';
-const BASE_URL = 'https://api.themoviedb.org/3';
-export const IMAGE_URL = 'https://image.tmdb.org/t/p/w500';
+import axios from 'axios';
 
-async function fetchWithErrorHandling(url = '', config = {}) {
-  const response = await fetch(url, config);
-  return response.ok
-    ? await response.json()
-    : Promise.reject(new Error('Not found'));
-}
+axios.defaults.baseURL = 'https://api.themoviedb.org';
 
-export function fetchTrendMovies() {
-  return fetchWithErrorHandling(`${BASE_URL}/trending/all/day?api_key=${KEY}`);
-}
+const API_KEY = 'f341564f871ad54342c422dd44d9e8b4';
 
-export function fetchMovieById(id) {
-  return fetchWithErrorHandling(
-    `${BASE_URL}/movie/${id}?api_key=${KEY}&language=en-US`
-  );
-}
+const addParams = abort => {
+  return {
+    signal: abort.signal,
+    params: { api_key: API_KEY },
+  };
+};
 
-export function fetchMovieCast(id) {
-  return fetchWithErrorHandling(
-    `${BASE_URL}/movie/${id}/credits?api_key=${KEY}&language=en-US`
-  );
-}
+export const loadTrendList = async abort => {
+  return await axios.get('/3/trending/movie/week', addParams(abort));
+};
 
-export function fetchMovieReviews(id) {
-  return fetchWithErrorHandling(
-    `${BASE_URL}/movie/${id}/reviews?api_key=${KEY}&language=en-US`
-  );
-}
+export const loadSearchList = async (search, abort) => {
+  return await axios.get(`3/search/movie`, {
+    signal: abort.signal,
+    params: { api_key: API_KEY, query: search },
+  });
+};
 
-export function fetchMovieSearch(name) {
-  return fetchWithErrorHandling(
-    `${BASE_URL}/search/movie?api_key=${KEY}&query=${name}&language=en-US&page=1&include_adult=false`
-  );
-}
+export const loadMovieFulInfo = async (id, abort) => {
+  return await axios.get(`3/movie/${id}`, addParams(abort));
+};
+
+export const loadMovieCast = async (id, abort) => {
+  return await axios.get(`3/movie/${id}/credits`, addParams(abort));
+};
+
+export const loadMovieReviews = async (id, abort) => {
+  return await axios.get(`3/movie/${id}/reviews`, addParams(abort));
+};
