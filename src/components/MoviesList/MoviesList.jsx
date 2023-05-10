@@ -11,7 +11,7 @@ export const MoviesList = ({ data, prefix }) => {
         {data.map(elem => (
           <li key={elem.id}>
             <Link to={`${prefix}${elem.id}`} state={{ from: location }}>
-              {elem.title}
+              {elem.title || elem.name}
             </Link>
           </li>
         ))}

@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled from '@emotion/styled';
 
 export const List = styled.ul`
   display: flex;
@@ -22,7 +22,10 @@ export const ListItem = styled.li`
 `;
 
 export const WraperInfo = styled.div`
-  margin: 0 0 8px;
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 `;
 
 export const ActorName = styled.p`

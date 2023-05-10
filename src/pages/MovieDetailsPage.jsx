@@ -1,6 +1,7 @@
 import { Suspense, useState, useEffect } from 'react';
 import { AiOutlineArrowLeft } from 'react-icons/ai';
 import { Outlet, Link, useParams, useLocation } from 'react-router-dom';
+import { Loader } from 'components/Loader';
 import { loadMovieFulInfo } from 'services/tmdb-api';
 import {
   Title,
@@ -14,14 +15,20 @@ const MovieDetailsPage = () => {
   const { id } = useParams();
   const [data, setData] = useState({});
   const location = useLocation();
+  const [error, setError] = useState('');
+  const [status, setStatus] = useState('idle');
 
   useEffect(() => {
     const abortController = new AbortController();
     async function fetch() {
       try {
+        setStatus('pending');
         const result = await loadMovieFulInfo(id, abortController);
         setData(result.data);
-      } catch (err) {}
+        setStatus('responded');
+      } catch (err) {
+        err.code !== 'ERR_CANCELED' && setError(err.message || err);
+      }
     }
 
     fetch();
@@ -39,15 +46,13 @@ const MovieDetailsPage = () => {
     return listGenres.map(({ name }) => name).join(', ');
   };
 
-  const poster = posterPath => {
-    if (posterPath !== null && posterPath.length > 0) {
-      return `https://image.tmdb.org/t/p/w500${posterPath}`;
-    }
-    return 'https://via.placeholder.com/320x480';
-  };
+  const { original_title, poster_path } = data;
 
   return (
     <main>
+      {error && <p>{error}</p>}
+      {status === 'responded' && (
+      <>
       {Object.keys(data).length > 0 && (
         <div>
           <WraperBtn>
@@ -56,19 +61,21 @@ const MovieDetailsPage = () => {
               Go back
             </GoBack>
           </WraperBtn>
-
           <WraperInfo>
-            <img
-              width="320"
-              src={poster(data['poster_path'])}
-              alt={`poster ${data['title']}`}
-            />
+              <img
+                src={
+                  poster_path
+                    ? `https://image.tmdb.org/t/p/w400${poster_path}`
+                    : 'https://via.placeholder.com/320x480'
+                }
+                alt={original_title}
+              />
             <div>
-              <h2>{data['title']}</h2>
+              <h2>{data['original_title']}</h2>
               <p>{`User Score: ${score(data)}%`}</p>
               <h3>Overview</h3>
               <p>{data['overview']}</p>
-              <h3>Gemres</h3>
+              <h3>Genres</h3>
               <p>{genres(data['genres'])}</p>
             </div>
           </WraperInfo>
@@ -93,11 +100,11 @@ const MovieDetailsPage = () => {
               </li>
             </ul>
           </Wraper>
-          <Suspense fallback={<div>Loading subpage...</div>}>
+          </div>)}</>)}
+          {status === 'pending' && <Loader />}
+          <Suspense fallback={<Loader />}>
             <Outlet />
           </Suspense>
-        </div>
-      )}
     </main>
   );
 };

@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Suspense, useState } from 'react';
+import { Outlet } from 'react-router-dom';
 import { AiOutlineSearch } from 'react-icons/ai';
+import { Loader } from 'components/Loader';
 import {
   SearchField,
   SearchLabel,
@@ -11,32 +12,27 @@ import { MoviesList } from 'components/MoviesList/MoviesList';
 import { loadSearchList } from 'services/tmdb-api';
 
 const MoviesPage = () => {
-  const [search, setSearch] = useState('');
   const [moviesList, setMoviesList] = useState([]);
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [error, setError] = useState('');
+  const abortController = new AbortController();
+  const [status, setStatus] = useState('idle');
+
+  const fetch = async (query) => {
+      try {
+        setStatus('pending');
+        const result = await loadSearchList(query, abortController);
+        setMoviesList(result.data.results);
+        setStatus('responded');
+      } catch (err) {
+        err.code !== 'ERR_CANCELED' && setError(err.message || err)
+      }
+    }
 
   const handleSubmit = event => {
     event.preventDefault();
-    setSearchParams({ query: search });
+    const searchValue = event.target[0].value;
+    fetch(searchValue)
   };
-
-  useEffect(() => {
-    const query = searchParams.get('query');
-    const abortController = new AbortController();
-
-    async function fetch() {
-      try {
-        const result = await loadSearchList(query, abortController);
-        setMoviesList(result.data.results);
-      } catch (err) {}
-    }
-
-    fetch();
-
-    return () => {
-      abortController.abort();
-    };
-  }, [searchParams]);
 
   return (
     <main>
@@ -49,8 +45,6 @@ const MoviesPage = () => {
               autocomplete="off"
               autoFocus
               placeholder="Search movies"
-              value={search}
-              onChange={event => setSearch(event.target.value)}
             />
             <SearchBtn type="submit">
               <AiOutlineSearch style={{ width: '24px', height: '24px' }} />
@@ -58,7 +52,15 @@ const MoviesPage = () => {
           </SearchLabel>
         </form>
       </SearchWraper>
-      {moviesList.length > 0 && <MoviesList data={moviesList} prefix="" />}
+      {error && <p>{error}</p>}
+      {status === 'responded' && (
+        <>
+          {moviesList.length > 0 && <MoviesList data={moviesList} prefix="" />}
+        </>)}
+      {status === 'pending' && <Loader />}
+        <Suspense fallback={<Loader />}>
+          <Outlet />
+        </Suspense>
     </main>
   );
 };
