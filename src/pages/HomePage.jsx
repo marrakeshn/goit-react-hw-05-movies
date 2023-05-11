@@ -33,7 +33,7 @@ const HomePage = () => {
     <main>
       <h2>Trending today</h2>
       {error && <p>{error}</p>}
-      {!isLoading ? <Loader /> : (moviesList.length && <MoviesList data={moviesList} prefix="movies/" />)}
+      {isLoading ? <Loader /> : (moviesList.length && <MoviesList data={moviesList} prefix="movies/" />)}
     </main>
   );
 };
