@@ -1,5 +1,5 @@
-import { Suspense, useState, useEffect } from 'react';
-import { Outlet, useParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { loadMovieCast } from 'services/tmdb-api';
 import { Loader } from 'components/Loader';
 import {
@@ -15,20 +15,20 @@ const Cast = () => {
   const [data, setData] = useState([]);
   const { id } = useParams();
   const [ error, setError ] = useState('');
-  const [status, setStatus] = useState('idle');
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const abortController = new AbortController();
 
     async function fetch() {
+      setIsLoading(true)
       try {
-        setStatus('pending');
         const result = await loadMovieCast(id, abortController);
         setData(result.data.cast);
-        setStatus('responded');
       } catch (err) {
         err.code !== 'ERR_CANCELED' && setError(err.message || err)
       }
+      setIsLoading(false)
     }
 
     fetch();
@@ -41,7 +41,7 @@ const Cast = () => {
   return (
   <>
     {error && <p>{error}</p>}
-      {status === 'responded' && (
+      {isLoading ? <Loader /> : (
        <>
         {data.length > 0 ? (
           <List>
@@ -70,10 +70,6 @@ const Cast = () => {
         )}
        </>
       )}
-      {status === 'pending' && <Loader />}
-          <Suspense fallback={<Loader />}>
-            <Outlet />
-          </Suspense>
   </>
 );
 }

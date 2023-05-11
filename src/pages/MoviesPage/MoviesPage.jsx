@@ -1,5 +1,4 @@
-import { Suspense, useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { useState } from 'react';
 import { AiOutlineSearch } from 'react-icons/ai';
 import { Loader } from 'components/Loader';
 import {
@@ -15,17 +14,17 @@ const MoviesPage = () => {
   const [moviesList, setMoviesList] = useState([]);
   const [error, setError] = useState('');
   const abortController = new AbortController();
-  const [status, setStatus] = useState('idle');
+  const [isLoading, setIsLoading] = useState(false);
 
   const fetch = async (query) => {
+      setIsLoading(true)
       try {
-        setStatus('pending');
         const result = await loadSearchList(query, abortController);
         setMoviesList(result.data.results);
-        setStatus('responded');
       } catch (err) {
         err.code !== 'ERR_CANCELED' && setError(err.message || err)
       }
+      setIsLoading(false)
     }
 
   const handleSubmit = event => {
@@ -53,14 +52,10 @@ const MoviesPage = () => {
         </form>
       </SearchWraper>
       {error && <p>{error}</p>}
-      {status === 'responded' && (
+      {isLoading ? <Loader /> : (
         <>
           {moviesList.length > 0 && <MoviesList data={moviesList} prefix="" />}
         </>)}
-      {status === 'pending' && <Loader />}
-        <Suspense fallback={<Loader />}>
-          <Outlet />
-        </Suspense>
     </main>
   );
 };

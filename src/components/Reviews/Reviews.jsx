@@ -1,5 +1,5 @@
-import { Suspense, useState, useEffect } from 'react';
-import { Outlet, useParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { loadMovieReviews } from 'services/tmdb-api';
 import { Fragment } from 'react';
 import { Loader } from 'components/Loader';
@@ -8,20 +8,20 @@ const Reviews = () => {
   const [data, setData] = useState([]);
   const { id } = useParams();
   const [error, setError] = useState('');
-  const [status, setStatus] = useState('idle');
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const abortController = new AbortController();
 
     async function fetch() {
+      setIsLoading(true)
       try {
-        setStatus('pending');
         const result = await loadMovieReviews(id, abortController);
         setData(result.data.results);
-        setStatus('responded');
       } catch (err) {
         err.code !== 'ERR_CANCELED' && setError(err.message || err)
       }
+      setIsLoading(false)
     }
 
     fetch();
@@ -34,7 +34,7 @@ const Reviews = () => {
   return (
     <Fragment>
       {error && <p>{error}</p>}
-      {status === 'responded' && (
+      {isLoading ? <Loader /> : (
       <>
       {data.length > 0 ? (
         <ul>
@@ -48,10 +48,6 @@ const Reviews = () => {
       ) : (
         <p>We don't have any reviews for this movie :(</p>
       )}</>)}
-      {status === 'pending' && <Loader />}
-          <Suspense fallback={<Loader />}>
-            <Outlet />
-          </Suspense>
     </Fragment>
   );
 };

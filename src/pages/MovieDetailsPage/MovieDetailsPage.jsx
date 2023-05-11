@@ -1,6 +1,6 @@
-import { Suspense, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { AiOutlineArrowLeft } from 'react-icons/ai';
-import { Outlet, Link, useParams, useLocation } from 'react-router-dom';
+import { Link, useParams, useLocation } from 'react-router-dom';
 import { Loader } from 'components/Loader';
 import { loadMovieFulInfo } from 'services/tmdb-api';
 import {
@@ -9,26 +9,26 @@ import {
   WraperInfo,
   GoBack,
   WraperBtn,
-} from './MovieDetailsPage.styled';
+} from '../MovieDetailsPage/MovieDetailsPage.styled';
 
 const MovieDetailsPage = () => {
   const { id } = useParams();
   const [data, setData] = useState({});
   const location = useLocation();
   const [error, setError] = useState('');
-  const [status, setStatus] = useState('idle');
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const abortController = new AbortController();
     async function fetch() {
+      setIsLoading(true)
       try {
-        setStatus('pending');
         const result = await loadMovieFulInfo(id, abortController);
         setData(result.data);
-        setStatus('responded');
       } catch (err) {
         err.code !== 'ERR_CANCELED' && setError(err.message || err);
       }
+      setIsLoading(false)
     }
 
     fetch();
@@ -38,22 +38,14 @@ const MovieDetailsPage = () => {
     };
   }, [id]);
 
-  const score = data => {
-    return Math.round((data['popularity'] / data['vote_count']) * 100);
-  };
-
-  const genres = listGenres => {
-    return listGenres.map(({ name }) => name).join(', ');
-  };
-
-  const { original_title, poster_path } = data;
-
+  const score = Math.round((data.popularity / data.vote_count) * 100);
+  
   return (
     <main>
       {error && <p>{error}</p>}
-      {status === 'responded' && (
-      <>
-      {Object.keys(data).length > 0 && (
+      {isLoading ? <Loader /> :
+        <>
+        {Object.keys(data).length > 0 && (
         <div>
           <WraperBtn>
             <GoBack to={location.state?.from ?? '/'}>
@@ -64,19 +56,19 @@ const MovieDetailsPage = () => {
           <WraperInfo>
               <img
                 src={
-                  poster_path
-                    ? `https://image.tmdb.org/t/p/w400${poster_path}`
+                  data.poster_path
+                    ? `https://image.tmdb.org/t/p/w400${data.poster_path}`
                     : 'https://via.placeholder.com/320x480'
                 }
-                alt={original_title}
+                alt={data.original_title}
               />
             <div>
-              <h2>{data['original_title']}</h2>
-              <p>{`User Score: ${score(data)}%`}</p>
+              <h2>{data.original_title}</h2>
+              <p>{`User Score: ${score}%`}</p>
               <h3>Overview</h3>
-              <p>{data['overview']}</p>
+              <p>{data.overview}</p>
               <h3>Genres</h3>
-              <p>{genres(data['genres'])}</p>
+              <p>{data.genres.map(({ name }) => name).join(', ')}</p>
             </div>
           </WraperInfo>
           <Wraper>
@@ -100,11 +92,7 @@ const MovieDetailsPage = () => {
               </li>
             </ul>
           </Wraper>
-          </div>)}</>)}
-          {status === 'pending' && <Loader />}
-          <Suspense fallback={<Loader />}>
-            <Outlet />
-          </Suspense>
+          </div>)}</>}
     </main>
   );
 };
