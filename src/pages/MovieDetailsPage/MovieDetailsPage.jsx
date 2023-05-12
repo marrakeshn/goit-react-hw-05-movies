@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { AiOutlineArrowLeft } from 'react-icons/ai';
-import { Link, useParams, useLocation } from 'react-router-dom';
+import { Outlet, Link, useParams, useLocation } from 'react-router-dom';
 import { Loader } from 'components/Loader';
 import { loadMovieFulInfo } from 'services/tmdb-api';
 import {
@@ -93,6 +93,9 @@ const MovieDetailsPage = () => {
             </ul>
           </Wraper>
           </div>)}</>}
+          <Suspense fallback={<Loader />}>
+            <Outlet />
+          </Suspense>
     </main>
   );
 };
