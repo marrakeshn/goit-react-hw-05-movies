@@ -15,9 +15,8 @@ export const loadTrendList = async abort => {
   return await axios.get('/3/trending/movie/week', addParams(abort));
 };
 
-export const loadSearchList = async (search, abort) => {
+export const loadSearchList = async (search) => {
   return await axios.get(`3/search/movie`, {
-    signal: abort.signal,
     params: { api_key: API_KEY, query: search },
   });
 };

@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { AiOutlineSearch } from 'react-icons/ai';
+import { useSearchParams } from 'react-router-dom';
 import { Loader } from 'components/Loader';
 import {
   SearchField,
@@ -13,26 +14,34 @@ import { loadSearchList } from 'services/tmdb-api';
 const MoviesPage = () => {
   const [moviesList, setMoviesList] = useState([]);
   const [error, setError] = useState('');
-  const abortController = new AbortController();
   const [isLoading, setIsLoading] = useState(false);
+  const [searchValue, setSearchValue] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const fetch = async (query) => {
+  const fetch = useCallback(async (query) => {
       setIsLoading(true)
       try {
-        const result = await loadSearchList(query, abortController);
+        const result = await loadSearchList(query);
         setMoviesList(result.data.results);
       } catch (err) {
         err.code !== 'ERR_CANCELED' && setError(err.message || err)
       }
       setIsLoading(false)
-    }
+    }, [])
 
   const handleSubmit = event => {
     event.preventDefault();
-    const searchValue = event.target[0].value;
-    fetch(searchValue)
+    setSearchParams(`searchValue=${searchValue}`);
   };
 
+  const handleChange = ({ target }) => {
+    setSearchValue(target.value)
+  }
+
+  useEffect(() => {
+    fetch(searchParams.get('searchValue'));
+  }, [fetch, searchParams])
+  
   return (
     <main>
       <SearchWraper>
@@ -44,6 +53,8 @@ const MoviesPage = () => {
               autocomplete="off"
               autoFocus
               placeholder="Search movies"
+              onChange={handleChange}
+              value={searchValue}
             />
             <SearchBtn type="submit">
               <AiOutlineSearch style={{ width: '24px', height: '24px' }} />
