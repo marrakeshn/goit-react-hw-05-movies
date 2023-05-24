@@ -65,7 +65,7 @@ const MoviesPage = () => {
       {error && <p>{error}</p>}
       {isLoading ? <Loader /> : (
         <>
-          {moviesList.length > 0 && <MoviesList data={moviesList} prefix="" />}
+          {!!moviesList.length && <MoviesList data={moviesList} prefix="" />}
         </>)}
     </main>
   );
